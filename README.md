@@ -20,7 +20,9 @@
 
 Docker将进程封装在容器中进行交付，实现Build、Ship和run。从此大家的进程不是“裸奔”在操作系统中，而是穿上了容器的外衣，通过这层外衣屏蔽了不同操作系统版本、不同的库文件和外部依赖。Docker的出现解决了传统PaaS的问题，而且减轻了PaaS需要承担的任务。于是从私有云开始，PaaS逐渐成为提高内部IT开发效率的重要形式。通过PaaS可以有效支持微服务、持续集成（CI）和DevOps。
 
-以Docker为核心的公有云PaaS服务也被推出，Google和AWS都尝试提供这类PaaS服务。以Docker为核心的PaaS开源软件也火了起来，CloudFoundry的新版本diego可以支持Docker容器的运行。
+以Docker为核心的公有云PaaS服务也被推出，Google和AWS都尝试提供这类PaaS服务。以Docker为核心的PaaS开源软件也火了起来，CloudFoundry的新版本diego可以支持Docker容器的运行，kubernetes作为Google在容器上最佳实践的被推出，mesos通过marathon提供了对docker容器编排的支持，Docker自己也通过Swarm开始支持一部分PaaS的能力。
+
+
 
 # 本书适应哪些读者
 
