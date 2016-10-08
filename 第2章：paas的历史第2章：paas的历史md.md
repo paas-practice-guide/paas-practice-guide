@@ -20,7 +20,17 @@ GAE最早在2008年4月面相公众开放。与AWS不一样的是，GAE不提供
 
 ## Heroku独辟蹊径
 
+仅接着GAE，另一家被称为“纯云服务”的企业Heroku推出了自己的云服务——托管 Ruby 语言的Web程序。随后Herorku支持的语言扩大到了Java、Node.js、Scala、Clojure、Python、PHP和Go。
+
+Herorku本身是托管在AWS之上的，他的主要贡献在于他提出了buildpack的概念，通过客户端的形式简化了应用部署，与git代码库结合探索了DevOps。Herorku还提出了“十二因子”的云计算程序开发原则，这后来成为云原生Cloud Native的核心思想。
+
+Herorku是一家相当有自己技术特点的公司，在2010年被salesforce.com收购。
+
 ## Cloud Foundry开源的私有解决方案
+
+VMWare是最早提供商业虚拟化软件的企业，其vsphere是最早的私有IaaS管理平台。因此他的PaaS解决方案当然也和其他不一样。在其私有IaaS管理平台大卖的基础上，2010年VMWare召集技术骨干开始秘密开发私有PaaS管理平台，这就是后来的Cloud Foundry，在其商业化影响力下，在国内Cloud Foundry基本成了PaaS的代名词。
+
+非常棒的是，VMWare改变了其商业策略，在2011年3月将Cloud Foundry开源，很快就有IBM等重量级合作伙伴加入到开发的队伍中，使得其生态链快速完善。IBM推出的Bluemix公有云核心部分就是基于Cloud Foundry做的。VMWare后来资本运作出的公司Pivotal现在负责Cloud Foundry的维护，他也推出了自己的公有云服务Pivotal.io。
 
 ## 由IaaS衍生出来的PaaS
 
