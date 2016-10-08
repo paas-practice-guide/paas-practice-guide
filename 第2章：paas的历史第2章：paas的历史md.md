@@ -32,5 +32,9 @@ VMWare是最早提供商业虚拟化软件的企业，其vsphere是最早的私�
 
 非常棒的是，VMWare改变了其商业策略，在2011年3月将Cloud Foundry开源，很快就有IBM等重量级合作伙伴加入到开发的队伍中，使得其生态链快速完善。IBM推出的Bluemix公有云核心部分就是基于Cloud Foundry做的。VMWare后来资本运作出的公司Pivotal现在负责Cloud Foundry的维护，他也推出了自己的公有云服务Pivotal.io。
 
+Cloud Foundry的开发由于聚集了大量VMWare以及其他大牌IT企业中的精英，其架构非常优秀。异步通信模式使其扩展性强。在容器技术尚未大火的时候就提出了自己的解决方案warden，离docker只有数步之差。
+
+Cloud Foundry对国内PaaS业界的贡献不仅在于开源软件本身，许多Pivotal和IBM负责Cloud Foundry的开发人员都在国内，培养了不少人才。
+
 ## 由IaaS衍生出来的PaaS
 
