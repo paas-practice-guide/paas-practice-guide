@@ -44,5 +44,5 @@ Cloud Foundry对国内PaaS业界的贡献不仅在于开源软件本身，许多
 
 随着2016年PaaS的重新兴起，AWS抓住机会推出了自己的PaaS理念——Serverless，将多种原有的基础服务通过自己的Lamda语言连接起来，让用户不在接触虚拟机可以按需启动自己的应用。
 
-同样微软的Azure，阿里云都从IaaS逐步往PaaS衍生。
+同样微软的Azure，阿里云都从IaaS逐步往PaaS衍生，拓展自己的疆域。
 
