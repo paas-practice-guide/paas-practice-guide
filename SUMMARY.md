@@ -2,10 +2,10 @@
 
 * [前言](README.md)
 * [第一部分：PaaS的前世今生](第一部分.md)
+    * [第1章：云计算概述\(第1章：云计算概述.md\)](第1章：云计算概述第1章：云计算概述md.md)
     * [第2章：PaaS的历史\(第2章：PaaS的历史.md\)](第2章：paas的历史第2章：paas的历史md.md)
     * [第3章：Docker对PaaS的意义\(第3章：Docker对PaaS的意义.md\)](第3章：docker对paas的意义第3章：docker对paas的意义md.md)
     * [第4章：PaaS的关键能力分析\(第4章：PaaS的关键能力分析.md\)](第4章：paas的关键能力分析第4章：paas的关键能力分析md.md)
-* [第1章：云计算概述\(第1章：云计算概述.md\)](第1章：云计算概述第1章：云计算概述md.md)
 * [第二部分：主流开源PaaS技术框架](第二部分.md)
     * [第5章：功能最全的PaaS框架—CloudFoundry](第五章：功能最全的paas框架—cloudfoundry.md)
     * [第6章：从资源管理扩展的PaaS框架—Mesos&Maranthon](第6章：从资源管理扩展的paas框架—mesosmaranthon.md)
