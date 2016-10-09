@@ -50,15 +50,7 @@ Build Ship and Run , Any app, Anywhere。这个Docker的商业口号非常直观
 
 其次它设立的镜像和容器标准实现了Run Any APP at Anywhere的特点，一次打包，多次运行。因此开发者只要在本地调试成功，上传云环境一定运行起来和本地是一模一样的。这极大解决了开发者开发程序过程中PaaS带来的困扰。因此PaaS带来的便利程度得到了最好的发挥。
 
-Docker出现后，一种以Docker容器为托管对象的PaaS模式出现了，它们被特别地称之为CaaS（Container as a Service）。而各大IaaS提供商，比如AWS、微软Azure、阿里云均开始提供CaaS服务。Cloud Foundry的V3版本也开始支持Docker镜像运行在其中。Docker公司收购了Tutum后也推出了自己的CaaS服务——Docker Cloud
+Docker出现后，一种以Docker容器为托管对象的PaaS模式出现了，它们被特别地称之为CaaS（Container as a Service）。而各大IaaS提供商，比如AWS、微软Azure、阿里云均开始提供CaaS服务。Cloud Foundry的V3版本也开始支持Docker镜像运行在其中。Docker公司收购了Tutum后也推出了自己的CaaS服务——Docker Cloud。
 
-－－－－－－－
-
-由于解决了交付的难题，Docker给DevOps带来了新生。自从Docker出现后，DevOps变得火热，之前使用vagrant、ansible或saltstack实现的DevOps流程和工具终究不如Docker那样彻底。从此开发人员和运维人员沟通的基础变成了Docker Image和它们的编排文件。
-
-同样的，Docker也改变了目前的软件开发模式，持续集成（CI）和持续交付（CD）都变得非常容易。不但老牌的Jenkins工具率先支持了Docker来进行CI和CD，更是有Drone这样新一代的工具原生就支持Docker，不但自己是以Docker方式运行，所有的插件也是以Docker的方式运行。 CI\/CD成了谈Docker的时候必谈的一个应用。
-
-Docker带来的最大改变恐怕还是要在软件架构方面，它使得我们可以负担得起微服务的创新架构。微服务架构带来了开发效率和运行效率的提升，但如果缺少适当的工具就会有很高的运维成本，Docker改变了这一切。开发者可以不用使用Spring Cloud或Dubbo这样的Java语言级框架；并且Docker接管了资源控制、安全隔离、网络可达、日志、运行监控、健康检查等复杂、琐碎且重复的事宜。Docker降低了我们应用微服务的难度，使得架构师可以将功能拆小，小意味着简单、可扩展性强、可靠性高、可以自由组合。
-
-但是顺带说一句，如果只是几台机器的小规模部署系统，仅用Docker在传统工具下自动部署就可以，但是一个大型的、多租户的系统，还是需要一个完善的容器编排框架，并将所有容器难以承担的有状态后端服务进行管理，那就是PaaS。PaaS使得微服务的部署不用关心物理集群、可以跨集群进行访问、微服务可以形成组合并有效隔离、集中收集日志、维持全局微服务状态啊，PaaS还提供了服务注册和发现的框架，使得应用不需要自己实现。当然PaaS还集中管理了持久化卷以及诸如Mysql之类的Backing Service，使得微服务的开发和运维工作进一步简化。
+Docker的出现解决了原有PaaS的局限性，使得PaaS的优势能充分发挥，在私有云环境中部署PaaS已经普遍的行为，而在公有云中提供PaaS也逐渐流行了起来。
 
