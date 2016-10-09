@@ -10,7 +10,7 @@
 
 `IaaS资源管理和调度 持久化 租户管理`
 
-## 运行时环境RumTime
+## 运行时环境RunTime
 
 ## 后端支持服务 BackingService
 
