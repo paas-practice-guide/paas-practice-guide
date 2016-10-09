@@ -1,3 +1,7 @@
+本章将对PaaS的关键能力进行阐述，以便第二部分介绍各种PaaS平台管理软件的时候进行准确地术语描述和对比。
+
+PaaS关键能力分为九个，如下图所示：
+
 `插图：关键能力图`
 
 `开发管理 可用性管理 编排`
@@ -10,11 +14,15 @@
 
 `IaaS资源管理和调度 持久化 租户管理`
 
-## 运行时环境RunTime
 
-## 后端支持服务 BackingService
 
-## 服务发现与路由 ServiceDiscovery&Routing
+什么是状态
+
+## 运行时环境Run Time
+
+## 后端支持服务 Backing Service
+
+## 服务发现与路由 Service Discovery&Routing
 
 ## 开发管理
 
@@ -35,4 +43,6 @@ IaaS适配、调度、节点管理
 ## 租户管理
 
 安全、资源隔离、监控、日志
+
+
 
