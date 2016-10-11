@@ -26,6 +26,8 @@
 
 ### 大数据技术爆炸式发展
 
+大数据技术的前身是数据仓库（Data Warehorse）和商业智能（Bussiness Intelligence）
+
 ### 数据碎片化阻碍了大数据充分变现
 
 ## 大数据PaaS平台的核心需求
