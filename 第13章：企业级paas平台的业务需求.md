@@ -26,7 +26,9 @@
 
 ### 大数据技术爆炸式发展
 
-大数据技术的前身是数据仓库（Data Warehorse）和商业智能（Bussiness Intelligence）
+大数据技术的前身是数据仓库（Data Warehorse）和商业智能（Bussiness Intelligence）。在2000年之前，DW\/BI的技术发展是相对缓慢的。当时Oracle提出了One size fit all的思路，在一个数据库中完成所有的操作，甚至包括流处理。但在2003年出现了专门为分析负载而设计的数据库，特别是2006年出现的Hadoop处理和存储技术吹响了大数据技术爆发的号角。Spark、Flink、Storm等新型的计算引擎；MongoDB、Redis等多种多样的存储结构；Kafaka、ActiveMQ等消息总线极大的丰富了大数据技术工具。R、Python等适合数据分析和处理的语言丰富了数据科学家的能力。
+
+这是最好的时代，也是最坏的时代。
 
 ### 数据碎片化阻碍了大数据充分变现
 
