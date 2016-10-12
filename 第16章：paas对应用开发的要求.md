@@ -6,9 +6,9 @@ PaaS实现了应用开发者和平台维护者之间的分工，应用开发者�
 
 [Heroku](http://www.heroku.com/)是业内知名的PaaS云平台，从对外提供服务以来，他们已经有上百万应用的托管和运营经验。基于这些积累，其创始人Adam Wiggins在2012年发布了一个“十二因子（The Twelve-Factor App）”的规范。参见附录A。Adam Wiggins对应用开发者提出了十二项建议，其实质就是为了实现无状态，如果符合这些规范建议，那么应用在HeroKu等PaaS云平台上将会非常容易，也能充分将平台的功能充分发挥出来。
 
-cloud-native应用的本质是它们满足如下特点的契约：通过可预测的行为，最大化复原。云平台使用的高度自动化、容器驱动的基础设施，引领软件的编写方式。开发者必须改变编码方式，在开发者和运行应用的基础设施之间建立一种新的契约。一个很好的契约例子是十二因素应用。
+Docker出现后，更加强了十二因子的开发模式的普及。这是因为Docker能非常好地支持无状态应用的部署和托管。针对复杂应用和多节点，Google开源了Kubernetes作为编排引擎。为了推广运行在Docker和Kubernetes等PaaS平台中应用的最佳实践，2015年Google联合其他20家公司宣布成立了开源组织Cloud Native Computing Foundation（CNCF）。CNCF也将隶属于Linux基金会管理，初始包括21家厂商：AT&T、Box、Cisco、Cloud Foundry Foundation、CoreOS、Cycle Computing、Docker、eBay、Goldman Sachs、Google、Huawei、IBM、Intel、Joyent、Kismatic、Mesosphere、Red Hat、Switch SUPERNAP、Twitter、Univa、VMware and Weaveworks。
 
-Google联合其他20家公司宣布成立了开源组织Cloud Native Computing Foundation（CNCF），
+Cloud-Native被翻译为云原生。它要求应用开发者必须改变编码方式，在开发者和运行应用的基础设施之间建立一种新的契约。十二因子就是一个很好的契约。
 
-CNCF包含21家厂商：AT&T、Box、Cisco、Cloud Foundry Foundation、CoreOS、Cycle Computing、Docker、eBay、Goldman Sachs、Google、Huawei、IBM、Intel、Joyent、Kismatic、Mesosphere、Red Hat、Switch SUPERNAP、Twitter、Univa、VMware and Weaveworks。这么多厂家的支持也反映出了容器市场的火热程度。CNCF也将隶属于Linux基金会管理。
+
 
