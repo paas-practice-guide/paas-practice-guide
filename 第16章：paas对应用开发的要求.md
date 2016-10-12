@@ -1,4 +1,4 @@
-PaaS实现了应用开发者和平台维护者之间的分工，
+PaaS实现了应用开发者和平台维护者之间的分工，应用开发者可以提交代码给PaaS平台，这些代码的运行将按照应用开发者的预期来进行。但例如高可用、扩展性
 
 [Heroku](http://www.heroku.com/)是业内知名的云应用平台，从对外提供服务以来，他们已经有上百万应用的托管和运营经验。前不久，创始人[Adam Wiggins](https://github.com/adamwiggins/)根据这些经验，发布了一个“十二要素应用宣言（The Twelve-Factor App）”
 
