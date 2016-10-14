@@ -52,7 +52,7 @@ Build Ship and Run , Any app, Anywhere。这个Docker的商业口号非常直观
 
 首先它部分解决了PaaS应用于公有云模式的问题。Docker相比之前的容器技术预留了比较好的隔离方式。在资源限额方面，它继承自cgroup，因此可以对CPU和内存等进行较好的资源限制，对网络和IO的限制也正在实现中；在租户隔离方面，它继承自namespace，因此应用可有自己的网络栈，开自己喜欢的任意端口，所有人在不同的namespace中，互相看不见，这降低了对开发者的限制。
 
-其次它设立的镜像和容器标准实现了Run Any APP at Anywhere的特点，一次打包，多次运行。因此开发者只要在本地调试成功，上传云环境一定运行起来和本地是一模一样的。这极大解决了开发者开发程序过程中PaaS带来的困扰。因此PaaS带来的便利程度得到了最好的发挥。
+其次它设立的镜像和容器标准实现了Run Any APP at Anywhere的特点，一次打包，多次运行。因此开发者只要在本地调试成功，上传云环境一定运行起来和本地是一模一样的。这极大解决了开发者使用PaaS过程中带来的困扰。因此PaaS带来的便利程度得到了最好的发挥。
 
 Docker出现后，一种以Docker容器为托管对象的PaaS模式出现了，它们被特别地称之为CaaS（Container as a Service）。而各大IaaS提供商，比如AWS、微软Azure、阿里云均开始提供CaaS服务。Cloud Foundry的V3版本也开始支持Docker镜像运行在其中。Docker公司收购了Tutum后也推出了自己的CaaS服务——Docker Cloud。
 
