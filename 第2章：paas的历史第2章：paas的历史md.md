@@ -22,7 +22,7 @@
 
 仅接着GAE，另一家被称为“纯云服务”的企业Heroku推出了自己的云服务——托管 Ruby 语言的Web程序。随后Heroku支持的语言扩大到了Java、Node.js、Scala、Clojure、Python、PHP和Go。
 
-Herorku本身是托管在AWS之上的，它的主要贡献在于提出了buildpack的概念，通过客户端的形式简化了应用部署，与git代码库结合探索了DevOps。Herorku还提出了“十二因子”的云计算程序开发原则，这后来成为云原生Cloud Native的核心思想。
+Herorku本身是托管在AWS之上的，它的主要贡献在于三点：提出了buildpack的概念；通过客户端的形式简化了应用部署；与git代码库结合探索了DevOps。Herorku还提出了“十二因子”的云计算程序开发原则，这后来成为云原生Cloud Native的核心思想。
 
 Herorku是一家相当有自己技术特点的公司，在2010年被salesforce.com收购。
 
