@@ -24,7 +24,7 @@
 
 Heroku本身是托管在AWS之上的，它的主要贡献在于三点：提出了buildpack的概念；通过客户端的形式简化了应用部署；与git代码库结合实现了DevOps。Heroku还提出了“十二因子”的PaaS程序开发原则（在附录A介绍），这后来成为云原生（Cloud Native）的核心思想。
 
-Herorku是一家相当有自己技术特点的公司，在2010年被Salesforce.com收购。
+Heroku是一家相当有自己技术特点的公司，在2010年被Salesforce.com收购，当时还引起了业界对于PaaS模式的激烈讨论。
 
 ## Cloud Foundry开源的私有解决方案
 
