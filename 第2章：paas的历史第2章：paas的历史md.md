@@ -28,7 +28,7 @@ Heroku是一家相当有自己技术特点的公司，在2010年被Salesforce.co
 
 ## Cloud Foundry开源的私有解决方案
 
-VMWare是最早提供商业虚拟化软件的企业，其vsphere是最早的私有IaaS管理平台。因此他的PaaS解决方案当然也和其他不一样。在其私有IaaS管理平台大卖的基础上，2010年VMWare召集技术骨干开始秘密开发私有PaaS管理平台，这就是后来的Cloud Foundry，在其商业化影响力下，在国内Cloud Foundry基本成了PaaS的代名词。
+VMWare是最早提供商业虚拟化软件的企业，其vsphere是最早的私有IaaS管理平台。因此他的PaaS解决方案当然也和其他公有PaaS不一样。在其私有IaaS管理平台大卖的基础上，2010年VMWare召集技术骨干开始秘密开发私有PaaS管理平台，这就是后来的Cloud Foundry，在其商业化影响力下，在国内Cloud Foundry基本成了PaaS的代名词。
 
 非常棒的是，VMWare改变了其商业策略，在2011年3月将Cloud Foundry开源，很快就有IBM等重量级合作伙伴加入到开发的队伍中，使得其生态链快速完善。IBM推出的Bluemix公有云核心部分就是基于Cloud Foundry做的。VMWare后来资本运作出的公司Pivotal现在负责Cloud Foundry的维护，他也推出了自己的公有云服务Pivotal.io。
 
