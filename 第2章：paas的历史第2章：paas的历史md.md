@@ -34,7 +34,7 @@ VMWare是最早提供商业虚拟化软件的企业，其vsphere是最早的私�
 
 Cloud Foundry的开发由于聚集了大量VMWare以及其他大牌IT企业中的精英，其架构非常优秀。异步通信模式使其扩展性强。在容器技术尚未大火的时候Cloud Foundry就提出了自己的解决方案warden，离Docker只有数步之差。
 
-Cloud Foundry对国内PaaS业界的贡献不仅在于开源软件本身，许多Pivotal和IBM负责Cloud Foundry的开发人员都在国内，培养了不少人才，所以在容器化时代，国内涌现出了一大波创业公司。
+Cloud Foundry对国内PaaS业界的贡献不仅在于开源软件本身，许多Pivotal和IBM负责Cloud Foundry的开发人员都在国内，培养了不少人才。所以在容器化时代，国内涌现出了一大波创业公司。
 
 ## 由IaaS衍生出来的PaaS
 
