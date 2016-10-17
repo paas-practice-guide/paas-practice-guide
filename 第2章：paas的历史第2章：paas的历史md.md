@@ -48,6 +48,10 @@ Heroku是一家相当有自己技术特点的公司，在2010年被Salesforce.co
 
 ## Cloud Foundry开源的私有解决方案
 
+```
+插入Cloud Foundry图标
+```
+
 VMWare是最早提供商业虚拟化软件的企业，其vsphere是最早的私有IaaS管理平台。因此他的PaaS解决方案当然也和其他公有PaaS不一样。在其私有IaaS管理平台大卖的基础上，2010年VMWare召集技术骨干开始秘密开发私有PaaS管理平台，这就是后来的Cloud Foundry，在其商业化影响力下，在国内Cloud Foundry基本成了PaaS的代名词。
 
 非常棒的是，VMWare改变了其商业策略，在2011年4月将Cloud Foundry开源，很快就有IBM等重量级合作伙伴加入到开发的队伍中，使得其生态链快速完善。IBM推出的Bluemix公有云核心部分就是基于Cloud Foundry做的。VMWare后来资本运作出的公司Pivotal现在负责Cloud Foundry的维护，它也推出了自己的公有云服务Pivotal.io。
@@ -57,6 +61,10 @@ Cloud Foundry的开发由于聚集了大量VMWare以及其他大牌IT企业中�
 Cloud Foundry对国内PaaS业界的贡献不仅在于开源软件本身，许多Pivotal和IBM负责Cloud Foundry的开发人员都在国内，培养了不少人才。所以在容器化时代，国内涌现出了一大波创业公司。
 
 ## 由IaaS衍生出来的PaaS
+
+```
+插入AWS Beanstalk图标
+```
 
 本章的最开始讨论了由SaaS衍生到PaaS的必要性，其实从IaaS衍生到PaaS也是非常由必要的。首先IaaS的同质化很严重，因为IaaS无非是提供虚拟机、磁盘和网络而已；其次纯IaaS的市场增长性也是不够的，AWS上利润率最高的是其数据库服务，而不是虚拟机。
 
