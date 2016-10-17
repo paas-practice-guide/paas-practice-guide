@@ -56,5 +56,5 @@ Build Ship and Run , Any app, Anywhere。这个Docker的商业口号非常直观
 
 Docker出现后，一种以Docker容器为托管对象的PaaS模式出现了，它们被特别地称之为CaaS（Container as a Service）。而各大IaaS提供商，比如AWS、微软Azure、阿里云均开始提供CaaS服务。Cloud Foundry的V3版本也开始支持Docker镜像运行在其中。Docker公司收购了Tutum后也推出了自己的CaaS服务——Docker Cloud。
 
-Docker的出现解决了原有PaaS的局限性，使得PaaS的优势能充分发挥，在私有云环境中部署PaaS已经普遍的行为，而在公有云中提供PaaS也逐渐流行了起来。
+Docker的出现解决了原有PaaS的局限性，使得PaaS的优势能充分发挥，在私有云环境中部署PaaS已经普遍的行为。还有一些公司围绕IaaS的生态链，在IaaS平台上推出自己的PaaS管理方案，让企业可以在公有的IaaS之上（例如AWS和阿里云之类的）搭建自己的私有PaaS平台，这种方案现在被称为**专有云**（Dedicated Cloud）
 
