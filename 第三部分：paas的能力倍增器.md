@@ -2,7 +2,7 @@
 
 云计算中的PaaS模式主要服务于开发者，开发者利用PaaS云平台提供的服务来开发和运行他们的应用代码。通过这样的方式，中小公司的开发者，甚至是个人开发者都可以享受媲美大型软件公司的工程效率。
 
-由于PaaS提升了开发者的工程效率，从而使得原来比较难以实现的持续集成（Continuous integration）、持续部署（Continuous delivery）、DevOps和微服务等新技术或架构风格变得容易。
+由于PaaS提升了开发者的工程效率，从而使得原来比较难以实现的持续集成（Continuous integration）、持续部署（Continuous delivery）、DevOps和微服务等变得容易。由于这些
 
 介绍CI CD 敏捷开发 DevOps与PaaS的关系。讨论微服务架构和PaaS的关系。
 
