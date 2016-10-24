@@ -70,9 +70,7 @@ Jenkins是一个持续集成和持续部署过程中非常有代表性的工具�
 
 比如IBM的Bluemix是一个基于Cloud Foundry提供的PaaS云平台，提供了众多的运行时环境和后端支持服务，IBM将其开发效率工具Rational整合了进来，不但包括代码协作，还包括了持续集成和部署的流水线。
 
-```
-截图 IBM的持续集成。
-```
+![](/assets/ibm_bluemix_multistage_pipeline.png)
 
 ## **PaaS的商业模式反过来促进了持续集成和持续交付在开发者中的普及**
 
