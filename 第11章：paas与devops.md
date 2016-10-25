@@ -16,7 +16,7 @@
 
 ![](/assets/what_devops.jpg)
 
-## 原有DevOps的实现方式
+## DevOps的实现方式
 
 作为一种支持敏捷开发的文化，DevOps的实践者们开发了一整套的体系来使得维护工作自动化、工具化。
 
