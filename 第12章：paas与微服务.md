@@ -34,9 +34,9 @@
 插入：微服务架构的实现方式
 ```
 
-API网关
+API网关 Nginx\/Haproxy\/Kong
 
-服务发现
+服务发现 客户端发现 服务端发现 Registrator Consul Consul-template\/ zuul \/ Zookeeper+Bamboo
 
 同步调用机制 RestAPI gRPC
 
