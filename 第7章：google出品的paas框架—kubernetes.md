@@ -1,235 +1,88 @@
 # **第7章：Google出品的PaaS框架—Kubernetes**
 
-## Overview of Kubernetes
+## Kubernetes概览
 
-- Kubernetes is one of the top projects on GitHub: in the top 0.01 percent in stars and No. 1 in terms of activity.
-- While documentation is subpar, Kubernetes has a significant Slack and Stack Overflow community that steps in to answer questions and foster collaboration, with growth that dwarfs that of its rivals.
-- More professionals [list Kubernetes in their LinkedIn profile](https://www.linkedin.com/vsearch/p?keywords=Kubernetes&openAdvancedForm=true&locationType=Y&rsid=52201473175930629&orig=ADVS) than any other comparable offering by a wide margin.
-- Perhaps most glaring, data from OpenHub shows Apache Mesos dwindling since its initial release and Docker Swarm starting to slow. In terms of raw community contributions, Kubernetes is exploding, with 1,000-plus contributors and 34,000 commits -- more than four times those of nearest rival Mesos.
+根据Kubernetes官网的介绍，Kubernetes是一个开源的容器化应用的自动化部署、扩容和管理系统。同时Kubernetes是构建在Google近10年通过容器进行各种生产活动经验的基础之上的。下面这张图描述了Kubernetes的架构和工作流程。可以看出Kubernetes就是为了在一个物理机或者虚拟机的集群中调度和运行容器应用而设计的，通过Kubernetes系统我们可以帮助开发者摆脱对主机的依赖，从一个面向主机的基础设施专项一个面向容器的基础设施进而最大化容器带来的好处。同时Kubernetes系统引入了很多新的概念，例如Pod、Service、RC等，我们将在后面的内容中结合Kubernetes的使用场景展开这些概念，总之他们可以很好的适应当前的技术栈，通过对这些能力的组合使用我们可以实现很多常见的应用生产要求，比如：
 
-![High availability Kubernetes diagram](google trends of kubernetes.png)
+- 应用健康性检查,
+- 应用副本控制,
+- 应用水平扩展
+- 服务发现
+- 负载均衡,
+- 滚动升级、蓝绿发布
+- …………
 
-According to the Kubernetes [website](http://kubernetes.io/) – “**Kubernetes is an open-source system for automating deployment, scaling, and management of containerized applications**.” Kubernetes was built by Google based on their experience running containers in production over the last decade. See below for a Kubernetes architecture diagram and the following explanation.
+## Kubernetes提供的运行时环境
 
-![High availability Kubernetes diagram](http://kubernetes.io/images/docs/ha.svg)
+Kubernetes系统本身是一套容器的调度和编排系统，所以Kubernetes理论上来说是不限制运行时的，Kubernetes系统引入了Pod的概念，Pod是Kubernetes资源管理和调度的最小单元，由一组容器组成，在Kubernetes中每个Pod有自己的IP、CPU、内存、端口等资源，Pod中的容器则共享这部分资源。
 
-Kubernetes offers cluster management that is well-adapted to working on today’s technology stacks. Whether running CoreOS, RedHat or any of the multitude of OS’s available, Kubernetes can spin up clusters in seconds. As an open source project created by Google Cloud Platform, Kubernetes continues to be developed and shaped by the community that relies on it for daily workflow management when working with cluster-based projects. Kubernetes is written in [Go](https://golang.org/), which makes it fast, lightweight and more responsive than languages such as Python.
+## Kubernetes中的后端服务
 
-Between pods, labels and services, Kubernetes offers a robust way to interact with clusters:
+目前Kubernetes可以以两种方式提供后端服务，一种是按照Open Service Broker API规范（https://github.com/openservicebrokerapi/servicebroker，CloudFoundry的ServiceBroker也是按照该规范来实现）实现的`service-catalog`，service-catalog在Kubernetes中增加了`Broker`、`ServiceClass`、`Instance`、`Binding`四种资源来实现对后端服务的管理，并使开发者可以订购后端服务并在自己的应用中使用这些后端服务，这是与而另一种是基于在Api Server中注册第三方API方式实现的`Operator`。Operater本质上是一种Controller，在Kubernetes 1.2中提供了注册第三方资源的功能，我们可以很方便的在API Server中增加新的资源，而以往只能通过修改Kubernetes的一系列代码才能增加新的资源，当我们在Kubernetes中注册了新的资源之后，我们就可以自己实现一个Controller来跟踪第三方资源的变化，进而完成相应的操作。Operator就是按照这个流程来实现后端服务的管理，比如CoreOS实现的ETCD Operater（https://github.com/coreos/etcd-operator），通过这个Operater我们可以在Kubernetes集群中创建相应第三方资源，之后我们就可以通过Operater来创建、调整ETCD集群，实现对ETCD集群的数据备份和恢复以及进行升级等操作。
 
-- **Pods** are small groups of Docker containers, able to be maintained within Kubernetes. Pods are easily deployable, resulting in less downtime when testing a build or QA debugging.Pods are the rough equivalent of a machine instance (physical or virtual) to a container. Each pod is allocated its own internal IP address, therefore owning its entire port space, and containers within pods can share their local storage and networking.
+## 在Kubernetes中完成服务发现
 
-  Pods have a lifecycle; they are defined, then they are assigned to run on a node, then they run until their container(s) exit or they are removed for some other reason. Pods, depending on policy and exit code, may be removed after exiting, or may be retained in order to enable access to the logs of their containers.
+在介绍Kubernetes的服务发现机制之前，我们先来介绍Kubernetes的一个重要概念—**标签（Label）**。标签是由一组k-v定义，标签在Kubernetes内部运行和运营维护过程中都起到至关重要的作用。与标签最直接相关的功能是**查询器（Selector）**，查询器支持通过标签来查询满足给定条件的对象。例如查询有`env=prd`标签的Pod。
 
-- **Labels** are exactly as they sound, used to organize groups of objects determined by their key:value pairs.For example, [pods](https://docs.openshift.org/latest/architecture/core_concepts/pods_and_services.html#pods) are "tagged" with labels, and then [services](https://docs.openshift.org/latest/architecture/core_concepts/pods_and_services.html#services) use label selectors to identify the pods they proxy to. This makes it possible for services to reference groups of pods, even treating pods with potentially different Docker containers as related entities.
+为了在Kubernetes中完成服务发现，Kubernetes引入了一个Service的概念，是以IP或者域名方式为一组Pod提供负载均衡，Service有自己的端口，Service通过标签来确定自己要代理的Pod，当Service被访问时，Service就会把流量转发到相应的Pod。目前Service有userspace和iptables两种工作模式，userspace是模式是通过进程来实现Service到Pod的流量转发，Iptables模式是通过iptables的规则来实现流量转发，目前官方推荐和默认使用的iptables模式，可以在安装时或者安装后通过修改Kubernetes节点的配置来启用userspace模式。两种方式各有优劣，基于Iptables规则的流量转发是一次性的，这就需要所有的Pod都能随时接收请求，如果有一个Pod因为某些原因无法正常工作，而此时恰巧Service又轮询到这个Pod，那这次请求就失败了，而userspace模式则可以重试请求直到找一个可用的Pod为止。基于userspace的流量转发在效率上来讲要比Iptables模式慢。总的来说要让Service能够很好的进行流量转发就要很好的利用Kubernetes提供的可用性管理工具，这些可用性管理工具可以帮助维护Service代理的Pod列表或者重启Pod。
 
-  Most objects can include labels in their metadata. So labels can be used to group arbitrarily-related objects; for example, all of the [pods](https://docs.openshift.org/latest/architecture/core_concepts/pods_and_services.html#pods), [services](https://docs.openshift.org/latest/architecture/core_concepts/pods_and_services.html#services), [replication controllers](https://docs.openshift.org/latest/architecture/core_concepts/deployments.html#replication-controllers), and [deployment configurations](https://docs.openshift.org/latest/architecture/core_concepts/deployments.html#deployments-and-deployment-configurations) of a particular application can be grouped.
+与服务发现相关的还有Kubernetes的网络设计，Kubernetes的网络设计主要是从三个方面来考虑，第一是所有的容器都可以不通过NAT方式来进行通信，第二所有的节点也可以不通过NAT方式来和所有的容器进行通信，第三是容器内外的IP一致。只所以这样做，一是能够减轻系统复杂性，另外可以让应用更容器的迁移到Kubernetes平台上来，而这正式其他一些平台所不具备的，例如CloudFoundry系统就会统一分配引用的端口，应用需要在启动时获取CF分配的端口，然后使用这个端口来启动服务，否则CF会认为应用没有正常启动而终止应用启动过程。同时由于端口是在应用启动时分配的，那么服务和服务之间的相互访问就会成问题。但是网络本身并不包含在Kubernetes系统中，而是通过一系列的网络插件进行容器网络管理，例如Openvswitch、flannel、calico等。这些网络插件都可以很好的与Kubernetes系统配合，具体使用那个网络插件工具可以根据具体情况来选择使用。
 
-- **Services** are used for load balancing, providing a centralized name and address for a set of pods.Services are assigned an IP address and port pair that, when accessed, proxy to an appropriate backing pod. A service uses a label selector to find all the containers running that provide a certain network service on a certain port.
+## Kubernetes中的可用性管理
 
-  Kubernetes has two different implementations of the service-routing infrastructure. The default implementation is entirely**iptables**-based, and uses probabilistic **iptables** rewriting rules to distribute incoming service connections between the endpoint pods. The older implementation uses a user space process to accept incoming connections and then proxy traffic between the client and one of the endpoint pods.
+在Kubernetes系统中可用性的管理可以分为两大部分，第一部分是**副本控制器**（RC，replication controller），第二部分是可用性探测（healthcheck）。其中服务控制是Kubernetes**控制管理器（Controller manager）**的一部分，而控制管理器本身是一个无限循环的进程，Controllermanager是一组用来提升Kubernetes系统运行自动化和鲁棒性的组件集合，他们共同的特性就是维护系统对某一对象的当前状态与期望状态的一致，副本控制器就会维护特定应用在系统中启动的Pod实例数量来达到提升应用可用性的目的。比如我们需要RC来帮我们维持web前端应用有3个Pod实例，当由于运行着1个Pod的物理机或者虚拟机节点关机后，当前Kubernetes系统中就只剩2个Pod在运行，RC就会在一个轮询周期内发现少了一个Pods，RC就会通知Api Server重新启动一个Pod来满足我们对web前端的Pod实例数要求。类似的还有endpoints controller, namespace controller, and serviceaccounts controller，他们都大大增加了Kubernetes系统的自动化能力，而减轻了开发人员的工作量。
 
-  The **iptables**-based implementation is much more efficient, but it requires that all endpoints are always able to accept connections; the user space implementation is slower, but can try multiple endpoints in turn until it finds one that works. If you have good [readiness checks](https://docs.openshift.org/latest/dev_guide/application_health.html#dev-guide-application-health) (or generally reliable nodes and pods), then the **iptables**-based service proxy is the best choice. Otherwise, you can enable the user space-based proxy [when installing](https://docs.openshift.org/latest/install_config/install/advanced_install.html#install-config-install-advanced-install), or after deploying the cluster by editing the [node configuration file](https://docs.openshift.org/latest/install_config/master_node_configuration.html#install-config-master-node-configuration).
+Kubernetes副本控制器让一个应用有足够的Pod实例数，来分散系统风险，提升应用的可用性，可用性探测则是跟踪每个Pod容器运行是否正常的手段，可用性探测可以通过HTTP请求、执行指定命名、探测Socket端口三种来判断容器是否正常运行，也就是如果HTTP请求的返回HTTP代码为200，执行命令的返回值为0或者可以连接到指定的Socket端口，Kubernetes就判断容器执行正常。
 
-- **Clusters** on Kubernetes eliminates the need for developers to worry about physical machines, acting as lightweight VMs in their own right, each capable of handling tasks which require scalability.
+## 在Kubernetes中进行编排
 
-- **Api server** validates and configures data for the api objects which include pods, services, replicationcontrollers, and others. The API Server services REST operations and provides the frontend to the cluster’s shared state through which all other components interact.
+在上面几部分介绍的和应用部署相关的概念，比如Pod、Service、RC等，都可以被定为在Kubernetes模板（template）里，通过template我们可以预先定义好一个应用的若微服务的启动容器、副本数量、可用性检查条件、服务发现等要素，同时模板还支持参数，比如副本数量、应用名称等，这样就可以让模板更具通用性。
 
-- **Controller manager**  is a daemon that embeds the core control loops shipped with Kubernetes. In applications of robotics and automation, a control loop is a non-terminating loop that regulates the state of the system. In Kubernetes, a controller is a control loop that watches the shared state of the cluster through the apiserver and makes changes attempting to move the current state towards the desired state. Examples of controllers that ship with Kubernetes today are the replication controller, endpoints controller, namespace controller, and serviceaccounts controller.
+通过模板我们就可以很快把应用部署到其他Kubernetes集群或者命名空间下，基于Kubernetes的包管理工具Helm可以让我们像使用yum、apt-get等包管理工具一样快速在Kubernetes集群中安装应用和服务。在Helm中安装的包被称为`chart`，chart中包含了所有在Kubernetes中部署应用和服务的所有要素，同时Helm也提供了仓库（repository，与YUM repo的作用一样）来集中管理chart的配置，我们可以通过Helm在仓库中检索、查看包信息，选择合适的包安装到Kubernetes集群中。
 
-- **kubelet**  is the primary “node agent” that runs on each node. The kubelet works in terms of a PodSpec. A PodSpec is a YAML or JSON object that describes a pod. The kubelet takes a set of PodSpecs that are provided through various mechanisms (primarily through the apiserver) and ensures that the containers described in those PodSpecs are running and healthy. The kubelet doesn’t manage containers which were not created by Kubernetes.
+如果我们已经使用了docker compose这样的编排工具，我们可以通过一个叫Kompose的工具把compose的yaml文件转换成Kubernetes`deployment`、`service`对象，这样就可以把通过compose启动的应用编排迁移到Kubernetes中来。
 
-  Other than from an PodSpec from the apiserver, there are three ways that a container manifest can be provided to the Kubelet.
+## **IaaS** **资源管理和调度**
 
-  File: Path passed as a flag on the command line. This file is rechecked every 20 seconds (configurable with a flag).
+在Kubernetes中对IaaS资源的调配和调度是由Kubernetes Master中的**调度器（Scheduler）**来完成的，调取器主要是来负责为需要启动的Pod在集群范围内指定启动节点。调度器并不会直接修改Pod的定义，而是通过创建Pod和Node的绑定关系来指定Pod的启动节点。Kubernetes系统默认的调度器主要是通过3步操作来完成节点的选择：
 
-  HTTP endpoint: HTTP endpoint passed as a parameter on the command line. This endpoint is checked every 20 seconds (also configurable with a flag).
+1. 过滤节点，首先从集群当前节点中过滤那些不符合Pod定义的节点，例如端口、文件系统、CPU、内存、节点标签等。
+2. 对过滤后的节点进行打分，根据调度规则，例如从节点当前资源利用率角度打分，当前节点资源利用率越低的节点打分越高；从均衡节点间负载角度打分；从Pod在节点间的分布情况来打分，当前节点上归属于同一Service的Pod数量越少打分越高。除此以外还可以基于节点的标签进行亲和请和反亲和性的设置。例如出于更高的应用可用性角度出发，我们要把应用的Pod不但要调度到不同的节点，还要让这些节点归属于不同的机架，这样就可以事先给每个节点增加归属机架标签，然后通过对节点上的机架标签设置反亲和性调度规则来尽可能的把Pod分散到不同的机架上。
+3. 确定最合适的节点。
 
-  HTTP server: The kubelet can also listen for HTTP and respond to a simple API (underspec’d currently) to submit a new manifest.
+上面我们介绍Kubernetes的调度器是如何工作的。下面我们来介绍一下Kubernetes如何管理每个节点上的可分配内存、CPU资源以及能够启动的Pod的数量的。
 
-- **Scheduler** is responsible for determining placement of new pods onto nodes within the cluster. It reads data from the pod and tries to find a node that is a good fit based on configured policies. It is completely independent and exists as a standalone/pluggable solution. It does not modify the pod and just creates a binding for the pod that ties the pod to the particular node.
+如果在没有特殊设置的情况下每个节点的可分配资源与当前节点的配置是相同的。但是这样极可能因为主机资源耗尽而影响kubelet和操作系统本身的工作，所以Kubernetes在kubelet的启动参数中增加了`kube-reserved`和`system-reserved`两个参宿来为kubelet和操作系统运行预留一定的资源。这样就把节点的容量和可调度资源区分开了，调度器会使用节点的可调度资源信息来完成调度相关的逻辑。
 
-  The existing generic scheduler is the default platform-provided scheduler "engine" that selects a node to host the pod in a 3-step operation:
+我们再来看看每个节点可调度的Pod数量的设置，当前版本的Kubernetes在默认情况下可以在每个节点上调度110个Pod。但是如果节点性能不好或者整个容器网络并没有规划足够的容器Ip地址，那么就可以对默认参数进行修改`max-pods`参数来减少每个节点可以调度的Pod数。
 
-  1. Filter the nodes
-  2. Prioritize the filtered list of nodes
-  3. Select the best fit node
+在Kubernetes节点运行一段时间以后就产生很多待清理的垃圾，包括容器镜像、容器产生的日志、Pod使用的临时持久化卷，都会占用大量的Kubernetes节点的存储资源，所以必须要定期进行清理。Kubernetes本身可以通过Kubelet的`image-gc-high-threshold`和`image-gc-low-threshold`两个参数来设置清理容器镜像的存储使用率阈值。对于容器运行的日志，特别是Docker可以设置容器运行日志为循环日志，这样就可以让容器日志只占用固定的大小，而新的日志会覆盖旧的日志，对于重要应用的日志则可以通过fluentd、logstash、heka等工具采集并汇总、分析。对于Pod挂载的临时持久化卷（emptyDir模式）则可以给节点上挂载一个块独立的文件系统进行存放，这样就算文件系统满了也不会影响操作系统的运行。文件系统的mount点可以在kubelet的启动参数`volumeDirectory`中查到。
 
-At a minimum, Kubernetes can schedule and run application containers on clusters of physical or virtual machines. However, Kubernetes also allows developers to ‘cut the cord’ to physical and virtual machines, moving from a **host-centric** infrastructure to a **container-centric** infrastructure, which provides the full advantages and benefits inherent to containers. Kubernetes provides the infrastructure to build a truly **container-centric** development environment.
+## Kubernetes的容器数据持久化设计
 
-Kubernetes satisfies a number of common needs of applications running in production, such as:
+就目前容器技术的特点来说，容器只能提供临时性的存储，这与主机所能提供的持久、耐用的存储有很大的不同，也就是因为这以往PAAS平台都提倡设计无状态的应用和服务，不过随着容器技术的不断推广和普及，在我们为容器技术带来的诸多好处而欲罢不能的时候，如何让更好的通过容器技术来运行有状态和持久化服务已经被提到了日程上来，Docker卷和卷插件的出现就是将有状态应用作为容器一等公民的开始。
 
-- [co-locating helper processes](http://kubernetes.io/docs/user-guide/pods/), facilitating composite applications and preserving the one-application-per-container model,
-- [mounting storage systems](http://kubernetes.io/docs/user-guide/volumes/),
-- [distributing secrets](http://kubernetes.io/docs/user-guide/secrets/),
-- [application health checking](http://kubernetes.io/docs/user-guide/production-pods/#liveness-and-readiness-probes-aka-health-checks),
-- [replicating application instances](http://kubernetes.io/docs/user-guide/replication-controller/),
-- [horizontal auto-scaling](http://kubernetes.io/docs/user-guide/horizontal-pod-autoscaling/),
-- [naming and discovery](http://kubernetes.io/docs/user-guide/connecting-applications/),
-- [load balancing](http://kubernetes.io/docs/user-guide/services/),
-- [rolling updates](http://kubernetes.io/docs/user-guide/update-demo/),
-- [resource monitoring](http://kubernetes.io/docs/user-guide/monitoring/),
-- [log access and ingestion](http://kubernetes.io/docs/user-guide/logging/),
-- [support for introspection and debugging](http://kubernetes.io/docs/user-guide/introspection-and-debugging/), and
-- [identity and authorization](http://kubernetes.io/docs/admin/authorization/).
+Kubernetes对存储卷也有自己的考虑，它将存储系统抽象为持久化卷（PV，persistent volumes）、持久化声明（PVC，persistent volume claims）以及物理卷（volumes），之所以进行这样的抽象是因为在实际生产过程中，除了开发者会使用Kubernetes进行应用的开发、部署以外，还有系统管理员和系统运维人员来进行进行系统运营、运维操作。而Kubernetes对存储系统进行的抽象正好对应着这些角色的日常工作，开发者通过Yaml、Json通过PVC向Kubernetes系统提出用持久化的需求，而系统运维人员则维护着物理存储系统，例如Glusterfs、Ceph、NFS等，他们在存储系统中划分出一定容量的存储卷（volumes），同时Kubernetes系统管理员使用PV把存储卷编目到Kubernetes系统中，当Kubernetes收到开发者的持久化卷需求后就会在已经编目的存储卷中选择一个合适卷，并通过相应的存储插件讲存储卷挂载到容器中。
 
-This provides the simplicity of Platform as a Service (PaaS) with the flexibility of Infrastructure as a Service (IaaS), and facilitates portability across infrastructure providers.
+与Kubernetes底层网络系统类似，Kubernetes通过插件方式接入底层存储系统，目前Kubernetes可以根据IAAS所能提供的存储能力使用包括Amazon EBS、Ceph、Glusterfs、NFS、Flocker以及vSphere volumes在内的很多种存储方案，在这里尽管Kubernetes通过对存储卷的抽象和存储卷插件的使用在一定程度上标准化了容器存储的使用，但是不同的存储方案任然会对容器的使用，特别是对容器的调度，带来一定的影响。最突出的是在那种类似AmazonEBS的块存储或者主机文件系统上，由于AmazonEBS只能被一台Amazon虚机使用，当我们把一个AmazonEBS绑定到一个应用时，我们通过RC来增加应用Pod的副本数时，新增的Pod实际上都（因为Pod要使用amazonEBS,而一个AmazonEBS又只能被一个Amazon虚机使用的缘故）被调度到一个节点之上，这实际上并没有达到负载均衡或者高可用目的。当然要解决这个问题就需要通过Kubernetes的StatfulSet、DeamonSet之类的新功能来解决，我们将在后面进行介绍。下面我们介绍Kubernetes的PV和PVC。
 
-#### Why and how is Kubernetes a platform?
-
-Even though Kubernetes provides a lot of functionality, there are always new scenarios that would benefit from new features. Application-specific workflows can be streamlined to accelerate developer velocity. Ad hoc orchestration that is acceptable initially often requires robust automation at scale. This is why Kubernetes was also designed to serve as a platform for building an ecosystem of components and tools to make it easier to deploy, scale, and manage applications.
-
-[Labels](http://kubernetes.io/docs/user-guide/labels/) empower users to organize their resources however they please. [Annotations](http://kubernetes.io/docs/user-guide/annotations/) enable users to decorate resources with custom information to facilitate their workflows and provide an easy way for management tools to checkpoint state.
-
-Additionally, the [Kubernetes control plane](http://kubernetes.io/docs/admin/cluster-components) is built upon the same [APIs](http://kubernetes.io/docs/api/) that are available to developers and users. Users can write their own controllers, [schedulers](https://github.com/kubernetes/kubernetes/tree/master/docs/devel/scheduler.md), etc., if they choose, with [their own APIs](https://github.com/kubernetes/kubernetes/blob/master/docs/design/extending-api.md) that can be targeted by a general-purpose [command-line tool](http://kubernetes.io/docs/user-guide/kubectl-overview/).
-
-This [design](https://github.com/kubernetes/kubernetes/blob/master/docs/design/principles.md) has enabled a number of other systems to build atop Kubernetes.
-
-#### Kubernetes is not:
-
-Kubernetes is not a traditional, all-inclusive PaaS (Platform as a Service) system. We preserve user choice where it is important.
-
-- Kubernetes does not limit the types of applications supported. It does not dictate application frameworks (e.g., [Wildfly](http://wildfly.org/)), restrict the set of supported language runtimes (e.g., Java, Python, Ruby), cater to only [12-factor applications](http://12factor.net/), nor distinguish “apps” from “services”. Kubernetes aims to support an extremely diverse variety of workloads, including stateless, stateful, and data-processing workloads. If an application can run in a container, it should run great on Kubernetes.
-- Kubernetes does not provide middleware (e.g., message buses), data-processing frameworks (e.g., Spark), databases (e.g., mysql), nor cluster storage systems (e.g., Ceph) as built-in services. Such applications run on Kubernetes.
-- Kubernetes does not have a click-to-deploy service marketplace.
-- Kubernetes is unopinionated in the source-to-image space. It does not deploy source code and does not build your application. Continuous Integration (CI) workflow is an area where different users and projects have their own requirements and preferences, so we support layering CI workflows on Kubernetes but don’t dictate how it should work.
-- Kubernetes allows users to choose the logging, monitoring, and alerting systems of their choice. (Though we do provide some integrations as proof of concept.)
-- Kubernetes does not provide nor mandate a comprehensive application configuration language/system (e.g., [jsonnet](https://github.com/google/jsonnet)).
-- Kubernetes does not provide nor adopt any comprehensive machine configuration, maintenance, management, or self-healing systems.
-
-On the other hand, a number of PaaS systems run *on* Kubernetes, such as [Openshift](https://github.com/openshift/origin), [Deis](http://deis.io/), and [Gondor](https://gondor.io/). You could also roll your own custom PaaS, integrate with a CI system of your choice, or get along just fine with just Kubernetes: bring your container images and deploy them on Kubernetes.
-
-Since Kubernetes operates at the application level rather than at just the hardware level, it provides some generally applicable features common to PaaS offerings, such as deployment, scaling, load balancing, logging, monitoring, etc. However, Kubernetes is not monolithic, and these default solutions are optional and pluggable.
-
-Additionally, Kubernetes is not a mere “orchestration system”; it eliminates the need for orchestration. The technical definition of “orchestration” is execution of a defined workflow: do A, then B, then C. In contrast, Kubernetes is comprised of a set of independent, composable control processes that continuously drive current state towards the provided desired state. It shouldn’t matter how you get from A to C: make it so. Centralized control is also not required; the approach is more akin to “choreography”. This results in a system that is easier to use and more powerful, robust, resilient, and extensible.
-
-## Resouce management in Kubernetes
-
-- **Replica controller**
-- **DaemonSet**
-- **PetSet**
-- **Job**
-- **Quota and request/limit**
-
-
-
-
-
-
-
-## Networking in Kubernetes
-
-Kubernetes approaches networking somewhat differently than Docker does by default. There are 4 distinct networking problems to solve:
-
-1. Highly-coupled container-to-container communications: this is solved by [pods](http://kubernetes.io/docs/user-guide/pods/) and `localhost` communications.
-2. Pod-to-Pod communications: this is the primary focus of this document.
-3. Pod-to-Service communications: this is covered by [services](http://kubernetes.io/docs/user-guide/services/).
-4. External-to-Service communications: this is covered by [services](http://kubernetes.io/docs/user-guide/services/).
-
-### Docker model
-
-Before discussing the Kubernetes approach to networking, it is worthwhile to review the “normal” way that networking works with Docker. By default, Docker uses host-private networking. It creates a virtual bridge, called `docker0` by default, and allocates a subnet from one of the private address blocks defined in [RFC1918](https://tools.ietf.org/html/rfc1918) for that bridge. For each container that Docker creates, it allocates a virtual ethernet device (called `veth`) which is attached to the bridge. The veth is mapped to appear as `eth0` in the container, using Linux namespaces. The in-container `eth0` interface is given an IP address from the bridge’s address range.
-
-The result is that Docker containers can talk to other containers only if they are on the same machine (and thus the same virtual bridge). Containers on different machines can not reach each other - in fact they may end up with the exact same network ranges and IP addresses.
-
-In order for Docker containers to communicate across nodes, they must be allocated ports on the machine’s own IP address, which are then forwarded or proxied to the containers. This obviously means that containers must either coordinate which ports they use very carefully or else be allocated ports dynamically.
-
-### Kubernetes model
-
-Coordinating ports across multiple developers is very difficult to do at scale and exposes users to cluster-level issues outside of their control. Dynamic port allocation brings a lot of complications to the system - every application has to take ports as flags, the API servers have to know how to insert dynamic port numbers into configuration blocks, services have to know how to find each other, etc. Rather than deal with this, Kubernetes takes a different approach.
-
-Kubernetes imposes the following fundamental requirements on any networking implementation (barring any intentional network segmentation policies):
-
-- all containers can communicate with all other containers without NAT
-- all nodes can communicate with all containers (and vice-versa) without NAT
-- the IP that a container sees itself as is the same IP that others see it as
-
-What this means in practice is that you can not just take two computers running Docker and expect Kubernetes to work. You must ensure that the fundamental requirements are met.
-
-This model is not only less complex overall, but it is principally compatible with the desire for Kubernetes to enable low-friction porting of apps from VMs to containers. If your job previously ran in a VM, your VM had an IP and could talk to other VMs in your project. This is the same basic model.
-
-Until now this document has talked about containers. In reality, Kubernetes applies IP addresses at the `Pod` scope - containers within a `Pod` share their network namespaces - including their IP address. This means that containers within a `Pod` can all reach each other’s ports on `localhost`. This does imply that containers within a `Pod` must coordinate port usage, but this is no different than processes in a VM. We call this the “IP-per-pod” model. This is implemented in Docker as a “pod container” which holds the network namespace open while “app containers” (the things the user specified) join that namespace with Docker’s `--net=container:` function.
-
-As with Docker, it is possible to request host ports, but this is reduced to a very niche operation. In this case a port will be allocated on the host `Node` and traffic will be forwarded to the `Pod`. The `Pod` itself is blind to the existence or non-existence of host ports.
-
-## Storage Provisioning and Allocation in Kubernetes
-One of the key challenges in running containerized workloads is dealing with persistence. Unlike virtual machines that offer durable and persistent storage, containers come with ephemeral storage. Right from its inception, [Docker](http://thenewstack.io/tag/Docker/)encouraged the design of stateless services. Persistence and statefulness are an afterthought in the world of containers. But this design works in favor of workload scalability and portability. It is one of the reasons why containers are fueling cloud-native architectures, microservices, and web-scale deployments.
-
-Having realized the benefits of containers, there is an ongoing effort to containerize stateful applications that can be seamlessly run with stateless application. Docker volumes and plugins [are a major step](http://thenewstack.io/methods-dealing-container-storage/) towards turning stateful applications into first-class citizens of Docker. 
-
-Kubernetes abstracts the underlying infrastructure building blocks into compute, storage and networking. When developers and operations teams get started with Kubernetes, they typically get exposed to objects such as pods, labels, services, deployments and replica sets, which provide a mechanism to deal with compute and networking. When it comes to persistence in Kubernetes, users should get familiar with the concepts of volumes, persistent volumes, persistent volume claims (PVC) and the upcoming Pet Sets.
-
-To appreciate how [Kubernetes](http://www.thenewstack.io/tag/Kubernetes) manages storage pools that provide persistence to applications, we need to understand the architecture and the workflow related to application deployment.
-
-Kubernetes is used in various roles — by developers, system administrators, operations, and DevOps teams. Each of these personas, if you will, interact with the infrastructure in a distinct way. The system administration team is responsible for configuring the physical infrastructure for running Kubernetes cluster. The operations team maintains the Kubernetes cluster through patching, upgrading, and scaling the cluster. DevOps teams deal with Kubernetes to configure CI/CD, monitoring, logging, rolling upgrades, and canary deployments. Developers consume the API and the resources exposed by the Kubernetes infrastructure. They are never expected to have visibility into the underlying physical infrastructure that runs the master and nodes.
-
-Developers “ask” for the resources they need to run their applications through a declarative mechanism, typically described in [YAML](http://yaml.org/) or [JSON](http://www.json.org/). The Kubernetes master is responsible for ensuring that the appropriate resources are selected as requested by the developers. But before it can do that, the administrators will need to provision the required compute, storage, and networking capacity.
-
-For example, a developer may ask Kubernetes to schedule a pod backed by SSD running powered by a certain number of cores and memory. Assuming that the infrastructure is capable, Kubernetes master honors the request by choosing the right node(s) to run the pod.
-
-To understand this concept, let’s look at the relationship between a pod and node. Nodes are pre-provisioned servers configured by administrators and operations team. Developers create pods that utilize the compute resources exposed by the nodes.
-
-This architecture of Kubernetes enables clean separation of concerns among developers, administrators, and operations.
-
-### Volumes
-
-[Kubernetes volumes](http://kubernetes.io/docs/user-guide/volumes/) are similar to [Docker volumes](https://docs.docker.com/userguide/dockervolumes/). Both are designed to bring a level of persistence to containers by relying on the underlying host.Kubernetes has a slightly different storage requirements than Docker. Since it supports packaging multiple containers into a pod, which is a logical unit of deployment, all the containers belonging to a specific pod should share the data. Containers in a pod may be occasionally restarted, which shouldn’t impact the storage mechanism. Unlike Docker volumes that are influenced by a specific container, Kubernetes volumes are tied to the lifecycle of a pod. Even if the containers running within a pod get terminated or restarted, the associated volume will continue to exist. It will only get deleted when the pod is explicitly terminated.
-
-In scenarios where a volume should be made available even after terminating a pod, it may be based on a durable block storage backend, such as Amazon EBS, Google Compute Engine’s Persistent Disks (GCE PD), or a distributed file system such as network file system (NFS) or Gluster. The key takeaway is that multiple containers packaged as a pod share the same volume.
-
-![kubernetes-host-storage](http://thenewstack.io/wp-content/uploads/2016/09/Kubernetes-Host-Storage-1024x653.png)
-
-Kubernetes volumes may be classified into host-based storage and non-host-based storage types. Host-based storage is similar to Docker volumes, where a portion of the host’s storage becomes available to the pod. Once a pod is terminated, the volume gets automatically deleted. Non-host-based storage doesn’t rely on a specific node. Instead, a storage volume is created from an external storage service. Volumes based on this storage type would be available even after the pods are deleted.
-
-A variety of block storages, distributed filesystems and hosted filesystems — including Amazon EBS, GCE PD, Ceph, Gluster, NFS, Azure File System, Flocker and vSphere volumes — are supported. 
-
-Volumes are ideal for use cases where containers are migrated from a Docker to a Kubernetes environment. Given its compatibility with Docker volumes, applications designed for host-based persistence can easily take advantage of the feature.
-
-### persistent volumes and claims
-
-In the [last part of this series](http://thenewstack.io/strategies-running-stateful-applications-kubernetes-volumes/), we explored how the concept of volumes brings persistence to containers. Let's introduce persistent volumes and claims, which form the robust storage infrastructure of Kubernetes.
-
-Let’s now expand the analogy of a pod and node to storage. Before developers can start using the storage, administrators need to provision persistent volumes. Unlike volumes, persistent volumes are not associated with any specific pod or containers when they are created. They are pre-provisioned storage resources that can be used by developers during the creation of a pod. Once persistence volumes (PersistentVolume) are provisioned by administrators, developers create a claim (PersistentVolumeClaim) to start consuming the storage resources exposed as persistent volumes.
-
-This is very similar to the relationship between the node and pods. Before deploying pods, developers assume that the nodes are provisioned and available. Similarly, before creating a claim, developers assume the availability of persistent volumes. Claims and persistent volumes are to storage what pods and nodes are to compute.
+就像我们之前介绍的PV和PVC将划分了Kubernetes系统管理员和开发者两类角色的工作界面，系统管理员需要负责提前为开发者在系统中准备持久化卷形成资源池，而开发者只需在系统中声明对存储的需求，实际上PV和PVC的关系与Node和Pod的关系是一样的，只不过PV、PVC解决的是开发者对数据持久化的需求，而Node、Pod解决的是开发者对计算、网络资源的需求。
 
 ![kubernetes_pvc](http://thenewstack.io/wp-content/uploads/2016/09/Kubernetes_PVC.png)
 
 Source: Steve Watt, Red Hat
 
-It’s also important to understand the difference between Kubernetes volumes and persistent volumes. Volumes are similar to Docker volumes in which containers request for persistence at runtime, which is provided by the host. Volumes can use implicit host-based storage or can explicitly request for persistence backed by external block storage devices and distributed file systems. But the developer doesn’t expect a storage resource to be pre-provisioned before using volumes. In persistent volumes and claims, there is a strict enforcement of resource utilization dictated by the policy defined during the creation of resources.
+通过PV、PVC对持久化卷的抽象，我们可以在Kubernetes系统把数据持久化卷的生命周期划分为5个阶段，分别是：
 
-Traditional Kubernetes volumes can take advantage of persistent volumes. Pods can access storage by using the claim as a volume. Claims must exist in the same namespace as the pod using the claim. The volume is then mounted to the host and into the pod.
+1. 供给，管理员从指定的存储系统中创建PV，供给可以是手工的也可以是自动，手工方式就是管理员提前准备好各种规格的存储并编目到Kubernetes系统中，这种方式实际上对开发者或者系统管理员都不是特别友好，比如开发者有10Gi的存储需求而系统管理员只准备了5Gi的卷，显然系统无法将两者匹配起来，而反过来系统管理员准备了10Gi的卷而开发者只有5Gi的需求，或者管理准备了10块持久化卷而开发者只有2个持久化需求，这实际上都对系统资源带来了极大的浪费，因为Kubernetes系统在存储插件的配合和支持下提供了自动的供给手段，例如Kubernetes的存储插件可以支持在AmazonEBS、OpenStack Cinder、GCE PD、GlusterFS、Ceph RBD等文件系统上自动的创建物理盘。这样就极大的减轻了管理员的工作量，并且能更好的满足开发者多样化的需求。不过随着自动化供给的引入，社区对Kubernetes存储子系统进行了一定程度的重构，特别为了支持各存储插件在各后端存储上进行自动化的供给而引入了StorageClass概念，同时PVC可以根据标签来选择PV。
+2. 绑定，开发者向Kubernetes提出存储需求（PVC），而系统选择一个可以满足要求的持久化卷并和需求进行绑定；
+3. 使用，开发者在Pod中使用持久化卷，将PVC映射到容器的指定目录上；
+4. 释放，当开发者不再有存储需求时，可以通过删除PVC来释放存储；
+5. 回收，当与PV绑定的PVC被删除后，系统会根据管理员在创建PV时选定回收策略来对PV进行相应的操作。
 
-#### Terminology, Concepts, and Lifecycle
 
-**PersistentVolume** (PV) is of networked storage resource of the cluster that has been provisioned by an administrator. It is a resource in the cluster just like a node is a cluster resource.
+## Kubernetes租户管理
 
-PVs are volume plugins like Volumes, but they have a distinct lifecycle that is independent of any individual pod that consumes the PV.
+在了解了Kubernetes的一些基本概念以后，我们来看看Kubernetes是如何管理集群里的资源的，相比与Mesos的资源供给模式，Kubernetes的资源管理接近于资源申请模式，Kubernetes的资源申请是定义在Pod中的，目前Kubernetes支持两种参数来设置Pod的资源用量，一个是Limits，一个是Requests，Limits代表了Pod可以使用的最大资源，Requests代表了Pod可以使用的最小资源，可以分别对CPU和内存设置Limits和Requests。
 
-A **PersistentVolumeClaim** (PVC) is a request for storage by a developer. It is similar to a pod. Pods consume node resources and PVCs consume PV resources. Pods can request specific levels of resources (CPU and Memory). Claims can request specific storage size and access modes such as read and read-write.
-
-PVCs and PVs can be matched through the concept of labels and selectors. During the creation of a PV, administrators can create labels with attributes. PVCs can use selectors to ensure that they are always bound to the matching PVs with matching labels.
-
-PersistentVolume types are implemented as plugins. Kubernetes supports popular backends and distributed file systems including Amazon EBS, GCE Persistent Disks, Cinder, Azure File System, NFS, iSCSI, Gluster, and Ceph among other types.
-
-A StorageClass enables administrators to create multiple tiers or classes of storage they offer. Different classes map to different levels of quality-of-service, backup policies, and arbitrary policies as defined by the administrators.
-
-There are five phases in the life cycle of a persistent volume:
-
-1. Provisioning
-2. Binding
-3. Using
-4. Releasing
-5. Reclaiming
-
-During the provisioning phase, an administrator creates a PV from an existing physical storage pool. Provisioning supports static and dynamic modes. When a developer requests a claim, Kubernetes looks for an existing PV that matches the requirement. This is called static provisioning. When none of the static PVs the administrator created matches a developer’s claim, the cluster may try to dynamically provision a volume for that PVC. This mode of provisioning is dynamically handled by Kubernetes, provided that the physical resources are available.
-
-Binding is a phase where the claim gets bound to a specific persistent volume. By analyzing the PVC, Kubernetes will find a matching PV, and associates both of them.
-
-After the PVC is bound to a PV, pods will start using claims as volumes. This is when the developer defines the mode (read or write) for accessing the volume.
-
-When an application is done with using the volume, developers can delete the PVC objects through the API, releasing the claim. This step will initiate the reclamation process. But until the claim is deleted, the volume would not be freed up for others to use.
-
-The last phase is reclamation, which is defined as a policy by the administrators. The reclaim policy for a PersistentVolume tells the cluster what to do with the volume after it has been released of its claim. Persistent volumes can either be retained, recycled or deleted. Depending on the storage backend, an appropriate action can be taken on the persistent volume. In case of using block storage, they may deleted by invoking the cloud-specific API. In scenarios where a volume was created from distributed storage, a simple scrub command may be issued.
-
+Limits和Requests两个参数的使用受到当前命名空间的配额（Quota）和LimitsRaange参数的影响，Quota决定了当前命名空间中所有Pod的总资源用量，LimitsRange则决定了单个Pod的Limits和Requests参数的设置范围，比如如果不想让单个Pod占用了当前命名空间的所有资源就可以通过LimitRange来设置单个Pod可以使用的资源上限。同时LimitRange还提供了Pod的Limits和Requests参数的默认值，因为一旦为当前命名空间设置了Quota参数，Limits和Requests参数就变成了必填参数，我们可以通过设置默认值来让系统自动填写这些参数，而不用根据环境的不同（例如生产环境和测试环境）设置不同的参数。这样就可以让一套编排文件能适应更多的Kubernetes系统。
