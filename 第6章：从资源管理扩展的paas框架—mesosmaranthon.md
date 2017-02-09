@@ -41,46 +41,7 @@ Mesos系统的设计初衷是用来进行集群资源管理和调度使应用可
 
 
 
-下面是一些已经支持Mesos的应用或框架:
-
-**常驻进程**
-
-- **Aurora** is a service scheduler that runs on top of Mesos, enabling you to run long-running services that take advantage of Mesos' scalability, fault-tolerance, and resource isolation.
-- **Marathon** is a private PaaS built on Mesos. It automatically handles hardware or software failures and ensures that an app is "always on."
-- **Singularity** is a scheduler (HTTP API and web interface) for running Mesos tasks: long running processes, one-off tasks, and scheduled jobs.
-- **SSSP** is a simple web application that provides a white-label "Megaupload" for storing and sharing files in S3.
-
-**大数据分析**
-
-- **Cray Chapel** is a productive parallel programming language. The Chapel Mesos scheduler lets you run Chapel programs on Mesos.
-- **Dpark** is a Python clone of Spark, a MapReduce-like framework written in Python, running on Mesos.
-- **Exelixi** is a distributed framework for running genetic algorithms at scale.
-- **Hadoop :** Running Hadoop on Mesos distributes MapReduce jobs efficiently across an entire cluster.
-- **Hama** is a distributed computing framework based on Bulk Synchronous Parallel computing techniques for massive scientific computations e.g., matrix, graph and network algorithms.
-- **MPI** is a message-passing system designed to function on a wide variety of parallel computers.
-- **Spark** is a fast and general-purpose cluster computing system which makes parallel jobs easy to write.
-- **Storm** is a distributed realtime computation system. Storm makes it easy to reliably process unbounded streams of data, doing for realtime processing what Hadoop did for batch processing.
-
-**批处理任务**
-
-- **Chronos** is a distributed job scheduler that supports complex job topologies. It can be used as a more fault-tolerant replacement for cron.
-- **Jenkins** is a continuous integration server. The mesos-jenkins plugin allows it to dynamically launch workers on a Mesos cluster depending on the workload.
-- **JobServer** is a distributed job scheduler and processor which allows developers to build custom batch processing Tasklets using point and click web UI.
-- **Torque** is a distributed resource manager providing control over batch jobs and distributed compute nodes.
-
-**数据存储**
-
-- **Cassandra** is a highly available distributed database. Linear scalability and proven fault-tolerance on commodity hardware or cloud infrastructure make it the perfect platform for mission-critical data.
-- **ElasticSearch** is a distributed search engine. Mesos makes it easy to run and scale.
-- **Hypertable** is a high performance, scalable, distributed storage and processing system for structured and unstructured data.
-
-通过上面的应用列表我们可以总结出那些应用比较适合在Mesos系统中运行
-
-[![use-mesos](http://eugenedvorkin.com/wp-content/uploads/2015/07/use-mesos.png)](http://eugenedvorkin.com/wp-content/uploads/2015/07/use-mesos.png)
-
-对于那些有状态或者单体的应用以及那些需要持久化数据到磁盘上的应用并不是非常合适运行在Mesos系统中。
-
-通过以上对Mesos的介绍可以看出Mesos本身只是负责资源管理的一个框架或者系统，可以看出Mesos本身并不是为PAAS平台设计的，但是Mesos灵活的资源管理和调度能力使得它有一个非常不错的基础，我们也看到Mesos应用中有一些例如Marathon这样的常驻进程编排框架、Chronos这样的通用批处理任务框架、Jenkins这样的应用开发流水线工具框架，结合这些框架提供的能力，我们就可以基于Mesos系统来搭建一套PAAS平台。我们通过Mesos来进行集群资源管理，通过Marathon来进行微服务应用的编排和管理。也就是DCOS所完成的任务。
+通过以上对Mesos的介绍可以看出Mesos本身只是负责资源管理的一个框架或者系统，它本身并不是为PAAS平台设计的，但是Mesos灵活的资源管理和调度能力使得它有一个非常不错的基础，我们也看到Mesos应用中有一些例如Marathon这样的常驻进程编排框架、Chronos这样的通用批处理任务框架、Jenkins这样的应用开发流水线工具框架，结合这些框架提供的能力，我们就可以基于Mesos系统来搭建一套PAAS平台。我们通过Mesos来进行集群资源管理，通过Marathon来进行微服务应用的编排和管理。这也就是DCOS所完成的任务。
 
 ## Marathon简介
 
@@ -92,11 +53,11 @@ Mesos系统的设计初衷是用来进行集群资源管理和调度使应用可
 
 在Mesos集群中Marathon第一个被启动的框架，然后Marathon的调度器就开始被当做操作系统的 `init`, `upstart`进程使用,在这里我们通过Marathon启动了两个Chronos调度器，这样Marathon就可以在Chronos调度器应为某些原因失败以后把他们重新启动起来，在Chronos调度器被启动起来以后，它们就可以接收来自Mesos Master的资源供给，我们看到他们在Mesos系统上又启动了两个任务，一个用来备份数据库，另一个用来发送电子邮件。同时Marathon会继续启动其他类型的应用容器，通过Docker容器或者Mesos容器，比如JBoss servers, Jetty, Sinatra, Rails等。
 
-## **运行时环境**
+## **Mesos Marathon运行时环境**
 
 由于Mesos Marathon还是完成基于容器的调度和编排，因此Mesos Marathon方案不会对运行时有特殊要求。
 
-## **服务发现与路由**
+## **Mesos Marathon服务发现与路由**
 
 在Mesos Marathon方案中通常可以通过三种方式来完成服务发现和路由。
 
@@ -108,14 +69,18 @@ Mesos-DNS的设计上采取了轻量化和无状态的设计思路，Mesos-DNS�
 
 在Mesos Marathon方案中完成服务发现的第三种方法是haproxy-marathon-bridge，现在已经被Marathon-lb取代，其工作原理和Marathon-lb基本是一样的。
 
-## **可用性管理**
+## **Mesos Marathon可用性管理**
 
 Marathon可以很好的支持对单个容器健康性检查。我们可以通过HTTP（S）、TCP以及可执行命令等方式来探测应用的状态。而从应用可用性角度来说，除了对单个容器的检查Marathon还可以做到多副本的设置，这样就可以很方便的实现对无状态应用的负载均衡和高可用，同时Marathon还支持动态的扩缩容。最后Marathon提供了应用集群的可用性探测这样就可以更直观的了解每个应用的运行状态，应用的可用性探测目前是对HTTP(S)地址的套餐完成的。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
 
-## **IaaS** **资源管理和调度**
+## **Mesos Marathon IaaS** **资源管理和调度**
 
 在Mesos Marathon方案中对IAAS的资源调度只需在提交任务时明确应用所需的内存、CPU资源需求即可，剩下的工作就交给Mesos和Marathon即可。但是我们依然可以通过制定一些约束条件来更好的实现应用编排和管理，主要是对主机名、Mesos Slave节点的标签设置响应的条件，比如我们要求每个Slave节点上只部署一个应用实例就可以要求Marathon在派发任务时每个节点只派发一个任务。又比如我们希望以机架为单位来部署应用实例就可以让Marathon在派发任务的时候按Mesos Slave的机架标签来对节点进行分组然后派发任务。当然这样做的前提是每个Mesos Slave节点上必须存在相应的标签，这些标签是在Mesos Slave启动的时候设置的。
 
-## **持久化存储**
+## **Mesos Marathon持久化存储**
 
 持久化卷的功能是在Marathon 1.0版中引入的为解决有状态应用数据存储问题的新特性，但现在还是beta状态，Marathon官网中特别对使用Marathon的持久化卷功能进行了风险提示。这意味着目前Marathon持久化的设计和功能实现完成度都还较低。Marathon目前可以支持两大类持久化卷，一类是Mesos Slave节点的本地存储，另一类是通过rexray项目来实现对外部存储的管理。但是rexray项目的局限在与很大程度上需要依赖IAAS和阵列的支持，在IAAS上包括AWS、GCE、OpenStack等，在阵列上包括ScaleIO、vmax等。
+
+## **Mesos Marathon多租户管理**
+
+Mesos Marathon本身并没有多租户的能力，但是借助Mesos的资源隔离能力，我们可以通过在Marathon中运行Marathon来变相的实现多租户的管理。也就是将Marathon划分成两层，第一层Marathon起到init进程的作用，它可以使用Mesos集群的所有资源，而第二层Marathon实际上是由多个Marathon实例组成，每个实例都和一个Mesos角色进行关联，通过Mesos的角色来决定某个Marathon实例能使用的资源额度，然后我们的应用就是由第二层Marathon来负责调度和管理，这个应用就只能使用分配到第二层Marathon的那块资源。这样就实现了Marathon的多租户。

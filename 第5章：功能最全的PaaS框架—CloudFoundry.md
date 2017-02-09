@@ -8,7 +8,7 @@ Cloudfoundry是由应用部署、应用执行、应用生命周期管理、可�
 
 ![Cloud Foundry Architecture](http://docs.cloudfoundry.org/concepts/images/cf_architecture_block.png)
 
-## 运行时支持-- buildpack
+## CloudFoundry运行时支持-- buildpack
 
 Cloudfoundry对运行时和各种框架的支持是通过将其打包成buildpack来实现应用程序对运行时和框架的支持，当我们push一个制品（aitfisres）到cloudfoundry的时候，Cloudfoundry会自动判断所需的buildpack，当然这里最好是显示的指定buildpack以防cloudfoundry判断失误，Cloudfoundry通过buildpack监测、分析用户提供的所谓制品（aitfisres）（这里的制品大多数时间都是代码、配置以及依赖约束）来判断所需的运行时，从何处下载相关依赖（例如执行pip intall -r requirement.txt来安装python的依赖，执行npm install 来安装nodejs的依赖），如何去配置应用程序（例如cloudfoundry指定给应用的端口，通过环境变量来配置绑定到应用的后端服务），在上去工作完成后buildpack和应用打包安装到Diego cell或者DEA中运行。
 
@@ -32,7 +32,7 @@ Cloudfoundry官方目前支持的通用语言和框架buildpack，具体列表�
 以上buildpack默认包含在cloudfoundry的安装中，可以做到开箱即用，但是如果程序所需的运行时或框架不包含在官方支持的列表里面的话可以cloudfoundry还有一些由社区贡献的buildpack（https://github.com/cloudfoundry-community/cf-docs-contrib/wiki/Buildpacks）可以使用，或者Heroku的buildpack也可以在cloudfoundry上使用（https://devcenter.heroku.com/articles/third-party-buildpacks），如果以上都没有满足要求的buildpack的话，我们可以定制自己的buildpack，比如从官方或者社区fork一份buildpack代码，然后在此基础上添加、修改我们需要的内容。
 
 
-## 后端服务支持
+## CloudFoundry后端服务支持
 
 在Cloudfoundry中包含一套服务市场功能，通过服务市场我们可以按需获取服务市场中提供的各种资源，例如数据库实例或者一个SaaS服务账号，提供和运营这些资源的系统被称为后端服务，我们获得的这些资源被称为服务实例。如果服务市场中没有我们需要的服务，cloudfoundry允许我们使用[User-Provided Service Instances](http://docs.cloudfoundry.org/devguide/services/user-provided.html) (UPSI)将自己已有的服务集成进来。
 
@@ -100,7 +100,7 @@ Cloudfoundry服务的API可以连接CloudController和servicebroker，servicebro
 
 **绑定**，在已经创建了服务实例之后，对于那些可以用来绑定应用的服务，我们可以在需要的时候把服务实力绑定到应用中，这是绑定接口可以生成服务的鉴权凭证，例如密码、证书等，用来让应用访问时鉴权使用。
 
-## 服务发现和路由
+## CloudFoundry服务发现和路由
 
 Cloudfoundry提供的面向应用的服务发现主要依靠向应用中注入环境变量实现，主要用在应用连接后端服务的场景，在之前介绍的后端服务内容中可以看到Cloudfoundry通过更新容器中的VCAP_SERVICES环境变量来帮助应用方便的找到需要的服务资源。
 
@@ -112,7 +112,7 @@ Cloudfoundry内部的服务发现主要依靠consul、BBS组件完成，他们�
 
 
 
-## 可用性管理
+## CloudFoundry可用性管理
 
 ### Scaling Horizontally
 
@@ -158,7 +158,7 @@ CloudFoundry有Diego、DEAs（Droplet Execution Agents）两种架构来管理�
 8. CloudController这时会让Diego和Gorouter将流量路由到Docker容器中。
 
 
-## 资源管理和调度
+## CloudFoundry资源管理和调度
 
 ### CloudFoundry是如何均衡它的负载的
 
@@ -170,9 +170,7 @@ CloudFoundry可以在多个机器中间进行负载均衡以应对单点故障�
 
 CloudFoundry集群中包含两类虚拟机，一类用来运行CloudFoundry组件，构成平台的基础设施，另一类用来运行应用程序。Diego系统会将承载在CloudFoundry中的应用分布在应用程序虚机上，保持应用持续运行，并且在各种情况下保持应用程序虚机的负载均匀。
 
-## 持久化存储
-
-## 租户管理
+## CloudFoundry租户管理
 
 在CloudFoundry中资源的管理被分成若干层级，
 
