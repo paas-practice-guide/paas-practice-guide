@@ -154,7 +154,7 @@ CloudFoundry有Diego、DEAs（Droplet Execution Agents）两种架构来管理�
 4. Diego小单元会输出加载过程信息和日志来帮助用户处理问题
 5. 加载任务会获取docker镜像的元数据信息，同时给CloudController返回一个“portion”，CloudController将其存入CCDB。
 6. CloudController使用Docker镜像的元数据来创建一个长期运行的进程，同时CloudController还会通过获取用户配置信息来覆盖docker默认配置，例如特定环境变量等。
-7. CloudController会提交一个长期运行京城给Diego，Diego将这个长期运行进程调度到一个或多个Diego小单元上。
+7. CloudController会提交一个长期运行进程给Diego，Diego将这个长期运行进程调度到一个或多个Diego小单元上。
 8. CloudController这时会让Diego和Gorouter将流量路由到Docker容器中。
 
 
