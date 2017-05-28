@@ -154,7 +154,7 @@ CloudFoundry有Diego、DEAs（Droplet Execution Agents）两种架构来管理�
 4. Diego小单元会输出加载过程信息和日志来帮助用户处理问题
 5. 加载任务会获取docker镜像的元数据信息，同时给CloudController返回一个“portion”，CloudController将其存入CCDB。
 6. CloudController使用Docker镜像的元数据来创建一个长期运行的进程，同时CloudController还会通过获取用户配置信息来覆盖docker默认配置，例如特定环境变量等。
-7. CloudController会提交一个长期运行京城给Diego，Diego将这个长期运行进程调度到一个或多个Diego小单元上。
+7. CloudController会提交一个长期运行进程给Diego，Diego将这个长期运行进程调度到一个或多个Diego小单元上。
 8. CloudController这时会让Diego和Gorouter将流量路由到Docker容器中。
 
 
@@ -162,9 +162,7 @@ CloudFoundry有Diego、DEAs（Droplet Execution Agents）两种架构来管理�
 
 ### CloudFoundry是如何均衡它的负载的
 
-CloudFoundry可以在多个机器中间进行负载均衡以应对单点故障。整个CloudFoundry大致可以分为三个级别的高可用保障手段。首先BOSH会在CloudFoundry集群物理机上创建和部署虚拟机，在一个配置文件的支持下用虚拟机上部署CloudFoundry，其次CloudFoundry的CloudController在虚拟机中运行应用程序和其他组件，控制请求并且管理生命周期，再次router模块将输入流量路由到运行着应用的虚拟机上，通常与一个用户提供的负载均衡一起工作。
-
-### How Apps Run Anywhere
+CloudFoundry可以在多个机器中间进行负载均衡以应对单点故障。整个CloudFoundry大致可以分为三个级别的高可用保障手段。首先BOSH会在CloudFoundry集群时将虚机划分到不同的IAAS可用区中（可以是AWS、OpenStack平台的可用区，也可以是独立的VMware集群），这样就在平台层面保障了高可用，其次CloudFoundry的组件都可以通过多实例的方式进行部署，BOSH会监控虚机和各组件的运行情况。再次router模块将输入流量路由到运行着应用的虚拟机上，同时router通常与一个用户提供的负载均衡一起工作。
 
 ### 应用程序如何随处运行
 
