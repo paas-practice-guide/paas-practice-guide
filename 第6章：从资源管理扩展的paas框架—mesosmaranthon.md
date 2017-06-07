@@ -4,7 +4,9 @@ Mesos起初是加州大学伯克利分校的Benjamin Hindman, Andy Konwinski, Ma
 
 ## Mesos系统概览
 
+
 Mesos系统的设计初衷是用来进行集群资源管理和调度,使应用可以方便在一个弹性集群中部署以及调度运行，通常我们把能够运行在Mesos系统上的一个应用称为一个Mesos框架（FrameWork），为了能够为集群中的框架提供各式各样的资源，Mesos一方面通过使用一些内核技术，例如Linux的cgroups、Solaris的zones，来提供CPU、内存、IO、文件系统的隔离，Mesos颇有创新的引入了被称为“resource offers“的分布式两层调度机制，这样Mesos可以决定有多少集群可以提供给每个框架，同时框架会决定接受和使用多少资源。Mesos系统通过像各框架提供通用的集群资源获取接口可以完成对整个集群资源的细粒度调配，同时运行在Mesos系统上的应用又可以共享整个Mesos集群的资源，这样就可以将多种分布式系统运行Mesos系统上，进而提高了集群资源的使用效率。
+
 
 ### Mesos系统的架构
 
