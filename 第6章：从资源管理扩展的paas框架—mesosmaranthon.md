@@ -15,13 +15,13 @@ Mesos系统的设计初衷是用来进行集群资源管理和调度,使应用�
 一个Mesos系统包含Mesos master、Mesos slave daemons以及一系列的frameworks. 上面的架构图显示了一个Mesos系统的构成，其中
 
 - **Master 进程**: 运行在Master节点上，用来管理slave节点
-- **Slave 进程**: 运行Master和Salve节点上，用来运行由Framework产生的任务
+- **Slave 进程**: 运行在Master和Salve节点上，用来运行由Framework产生的任务
 - **Framework**: 也被称为Mesos应用,包含调度器和执行器，调度器会接受来自master的offers，执行器负责启动slave节点上的任务，常见的Mesos框架有Marathon、Chronos还有Hadoop。
 - **Offer**: 实际上是一份slave节点上可用内存、CPU资源的列表，Slave节点报告可用资源给Master，Master向已注册的框架提供资源信息。
-- **Task**:一组有Framwork调度到Slave节点上执行的工作，任务可以是一个操作系统命令、可以是一个脚本、可以是一个SQL语言甚至可以是一个Hadoop的job。
+- **Task**:一组由Framwork调度到Slave节点上执行的工作，任务可以是一个操作系统命令、可以是一个脚本、可以是一个SQL语言，甚至可以是一个Hadoop的job。
 - **Apache ZooKeeper**: 用来完成多个Master之间的协调。
 
-通过如上图所示的架构，Mesos就可以对整个集群及应用进行底层的资源管理，在Mesos Master上会配置每个FrameWork可以使用的资源配额，每个Framework的调度器会确定使用配额中的哪一部分资源，一旦调度器决定使用一部分资源，那么调度器会同时Mesos执行哪个任务，接下来Mesos会在适当的slave上启动任务，当任务结束以后资源会被释放，然后可以被mesos重新调度给其他framwork使用。
+通过如上图所示的架构，Mesos就可以对整个集群及应用进行底层的资源管理，在Mesos Master上会配置每个FrameWork可以使用的资源配额，每个Framework的调度器会确定使用配额中的哪一部分资源，一旦调度器决定使用一部分资源，那么调度器会通知Mesos执行哪个任务，接下来Mesos会在适当的slave上启动任务，当任务结束以后资源会被释放，然后可以被mesos重新调度给其他framwork使用。
 
 下面我们来重点看看Mesos系统的几个关键点是如何完成:
 
