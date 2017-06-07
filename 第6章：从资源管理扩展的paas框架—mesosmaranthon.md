@@ -51,7 +51,7 @@ Mesos系统的设计初衷是用来进行集群资源管理和调度,使应用�
 
 ![img](https://mesosphere.github.io/marathon/img/architecture.png)
 
-在Mesos集群中Marathon第一个被启动的框架，然后Marathon的调度器就开始被当做操作系统的 `init`, `upstart`进程使用,在这里我们通过Marathon启动了两个Chronos调度器，这样Marathon就可以在Chronos调度器应为某些原因失败以后把他们重新启动起来，在Chronos调度器被启动起来以后，它们就可以接收来自Mesos Master的资源供给，我们看到他们在Mesos系统上又启动了两个任务，一个用来备份数据库，另一个用来发送电子邮件。同时Marathon会继续启动其他类型的应用容器，通过Docker容器或者Mesos容器，比如JBoss servers, Jetty, Sinatra, Rails等。
+在Mesos集群中Marathon第一个被启动的框架，然后Marathon的调度器就开始被当做操作系统的 `init`, `upstart`进程使用,在这里我们通过Marathon启动了两个Chronos调度器，这样Marathon就可以在Chronos调度器因为某些原因失败以后把它们重新启动起来，在Chronos调度器被启动起来以后，它们就可以接收来自Mesos Master的资源供给，我们看到他们在Mesos系统上又启动了两个任务，一个用来备份数据库，另一个用来发送电子邮件。同时Marathon会继续启动其他类型的应用容器，通过Docker容器或者Mesos容器，比如JBoss servers, Jetty, Sinatra, Rails等。
 
 ## **Mesos Marathon运行时环境**
 
