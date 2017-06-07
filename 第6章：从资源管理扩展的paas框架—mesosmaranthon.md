@@ -4,7 +4,9 @@ Mesos起初是加州大学伯克利分校的Benjamin Hindman, Andy Konwinski, Ma
 
 ## Mesos系统概览
 
-Mesos系统的设计初衷是用来进行集群资源管理和调度使应用可以方便在一个弹性集群中部署以及调度运行，通常我们把能够运行在Mesos系统上的一个应用称为一个Mesos框架（FrameWork），为了能够为集群中的框架提供各式各样的资源，Mesos一方面通过使用一些内核技术，例如Linux的cgroups、Solaris的zones，来提供CPU、内存、IO、文件系统的隔离，Mesos颇有创新的引入了被称为“resource offers“的分布式两层调度机制，这样Mesos可以决定有多少集群可以可以提供给每个框架，同时框架会决定接受和使用多少资源。Mesos系统通过向各框架提供通用的集群资源获取接口，完成对整个集群资源的细粒度调配，同时运行在Mesos系统上的应用又可以共享整个Mesos集群的资源，这样就达到了将多种分布式系统运行Mesos系统上，进而提高了集群资源的使用效率。
+
+Mesos系统的设计初衷是用来进行集群资源管理和调度,使应用可以方便在一个弹性集群中部署以及调度运行，通常我们把能够运行在Mesos系统上的一个应用称为一个Mesos框架（FrameWork），为了能够为集群中的框架提供各式各样的资源，Mesos一方面通过使用一些内核技术，例如Linux的cgroups、Solaris的zones，来提供CPU、内存、IO、文件系统的隔离，Mesos颇有创新的引入了被称为“resource offers“的分布式两层调度机制，这样Mesos可以决定有多少集群可以提供给每个框架，同时框架会决定接受和使用多少资源。Mesos系统通过像各框架提供通用的集群资源获取接口可以完成对整个集群资源的细粒度调配，同时运行在Mesos系统上的应用又可以共享整个Mesos集群的资源，这样就可以将多种分布式系统运行Mesos系统上，进而提高了集群资源的使用效率。
+
 
 ### Mesos系统的架构
 
@@ -15,13 +17,13 @@ Mesos系统的设计初衷是用来进行集群资源管理和调度使应用可
 一个Mesos系统包含Mesos master、Mesos slave daemons以及一系列的frameworks. 上面的架构图显示了一个Mesos系统的构成，其中
 
 - **Master 进程**: 运行在Master节点上，用来管理slave节点
-- **Slave 进程**: 运行Master和Salve节点上，用来运行由Framework产生的任务
+- **Slave 进程**: 运行在Master和Salve节点上，用来运行由Framework产生的任务
 - **Framework**: 也被称为Mesos应用,包含调度器和执行器，调度器会接受来自master的offers，执行器负责启动slave节点上的任务，常见的Mesos框架有Marathon、Chronos还有Hadoop。
 - **Offer**: 实际上是一份slave节点上可用内存、CPU资源的列表，Slave节点报告可用资源给Master，Master向已注册的框架提供资源信息。
-- **Task**:一组有Framwork调度到Slave节点上执行的工作，任务可以是一个操作系统命令、可以是一个脚本、可以是一个SQL语言甚至可以是一个Hadoop的job。
+- **Task**:一组由Framwork调度到Slave节点上执行的工作，任务可以是一个操作系统命令、可以是一个脚本、可以是一个SQL语言，甚至可以是一个Hadoop的job。
 - **Apache ZooKeeper**: 用来完成多个Master之间的协调。
 
-通过如上图所示的架构，Mesos就可以对整个集群及应用进行底层的资源管理，在Mesos Master上会配置每个FrameWork可以使用的资源配额，每个Framework的调度器会确定使用配额中的哪一部分资源，一旦调度器决定使用一部分资源，那么调度器会同时Mesos执行哪个任务，接下来Mesos会在适当的slave上启动任务，当任务结束以后资源会被释放，然后可以被mesos重新调度给其他framwork使用。
+通过如上图所示的架构，Mesos就可以对整个集群及应用进行底层的资源管理，在Mesos Master上会配置每个FrameWork可以使用的资源配额，每个Framework的调度器会确定使用配额中的哪一部分资源，一旦调度器决定使用一部分资源，那么调度器会通知Mesos执行哪个任务，接下来Mesos会在适当的slave上启动任务，当任务结束以后资源会被释放，然后可以被mesos重新调度给其他framwork使用。
 
 下面我们来重点看看Mesos系统的几个关键点是如何完成:
 
@@ -51,7 +53,7 @@ Mesos系统的设计初衷是用来进行集群资源管理和调度使应用可
 
 ![img](https://mesosphere.github.io/marathon/img/architecture.png)
 
-在Mesos集群中Marathon第一个被启动的框架，然后Marathon的调度器就开始被当做操作系统的 `init`, `upstart`进程使用,在这里我们通过Marathon启动了两个Chronos调度器，这样Marathon就可以在Chronos调度器应为某些原因失败以后把他们重新启动起来，在Chronos调度器被启动起来以后，它们就可以接收来自Mesos Master的资源供给，我们看到他们在Mesos系统上又启动了两个任务，一个用来备份数据库，另一个用来发送电子邮件。同时Marathon会继续启动其他类型的应用容器，通过Docker容器或者Mesos容器，比如JBoss servers, Jetty, Sinatra, Rails等。
+在Mesos集群中Marathon第一个被启动的框架，然后Marathon的调度器就开始被当做操作系统的 `init`, `upstart`进程使用,在这里我们通过Marathon启动了两个Chronos调度器，这样Marathon就可以在Chronos调度器因为某些原因失败以后把它们重新启动起来，在Chronos调度器被启动起来以后，它们就可以接收来自Mesos Master的资源供给，我们看到他们在Mesos系统上又启动了两个任务，一个用来备份数据库，另一个用来发送电子邮件。同时Marathon会继续启动其他类型的应用容器，通过Docker容器或者Mesos容器，比如JBoss servers, Jetty, Sinatra, Rails等。
 
 ## **Mesos Marathon运行时环境**
 
